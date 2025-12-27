@@ -1,66 +1,64 @@
+import {PlayerController} from '../PlayerController';
+import {FallingGiftSpawner} from '../systems/FallingGiftSpawner';
+import {EnergyBar} from '../ui/EnergyBar';
+import {Score} from '../ui/Score';
 import Phaser from 'phaser';
 
 export class LolaCatchScene extends Phaser.Scene {
-    private player!: Phaser.Physics.Arcade.Sprite;
-    private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-    private grass!: Phaser.GameObjects.TileSprite;
+    private playerController!: PlayerController;
+
+    private ground!: Phaser.GameObjects.TileSprite;
     private giftsBg!: Phaser.GameObjects.TileSprite;
     private xmasTreeBg!: Phaser.GameObjects.TileSprite;
-    private energy = 100;
-    private energyBar!: Phaser.GameObjects.Graphics;
 
-    private drawEnergyBar() {
-        const x = 20;
-        const y = 20;
-        const width = 200;
-        const height = 20;
+    private energyBar!: EnergyBar;
+    private score!: Score;
+    private fallingGiftSpawner!: FallingGiftSpawner;
 
-        const percent = Phaser.Math.Clamp(this.energy / 100, 0, 1);
+    /** Обработчик поимки подарка. */
+    private catchFallingGift: Phaser.Types.Physics.Arcade.ArcadePhysicsCallback =
+        (_player, fallingGift) => {
+            const gift = fallingGift as Phaser.Physics.Arcade.Image;
+            this.score.add(1);
 
-        this.energyBar.clear();
-
-        // фон
-        this.energyBar.fillStyle(0x222222, 0.8);
-        this.energyBar.fillRect(x, y, width, height);
-
-        // энергия
-        // #fff130ff
-        this.energyBar.fillStyle(0xfff130, 1);
-        this.energyBar.fillRect(x, y, width * percent, height);
-
-        // рамка
-        this.energyBar.lineStyle(2, 0xffffff, 1);
-        this.energyBar.strokeRect(x, y, width, height);
-    }
+            gift.disableBody(true, true);
+        };
 
     constructor() {
         super('LolaCatch');
     }
 
     preload() {
-        this.load.image('grass', 'src/assets/images/grass.png');
+        this.load.image('ground', 'src/assets/images/ground.jpg');
         this.load.image('gifts-bg', 'src/assets/images/gifts.png');
         this.load.image('xmas-tree-bg', 'src/assets/images/xmas_tree.png');
         this.load.spritesheet('polina', 'src/assets/images/polina.png', {
             frameWidth: 82,
             frameHeight: 132,
         });
+        // this.load.image('gifts', 'src/assets/images/gifts.png');
+        for (let i = 1; i <= 6; i++) {
+            this.load.image(
+                `falling_gift_${i}`,
+                `src/assets/images/falling_gift_${i}.png`,
+            );
+        }
     }
 
     create() {
-        const grassHeight = 338;
-        const grassScale = 0.45;
+        const groundHeight = 586;
+        const groundScale = 0.25;
 
-        this.grass = this.add
+        this.ground = this.add
             .tileSprite(
                 0,
-                this.scale.height - grassHeight * grassScale + 30,
-                this.scale.width * 2.45,
-                grassHeight,
-                'grass',
+                this.scale.height - groundHeight * groundScale + 50,
+                this.scale.width * 4,
+                groundHeight,
+                'ground',
             )
             .setOrigin(0, 0);
-        this.grass.setScale(grassScale);
+        this.ground.setScale(groundScale);
 
         this.giftsBg = this.add.tileSprite(
             this.scale.width - 230,
@@ -90,61 +88,40 @@ export class LolaCatchScene extends Phaser.Scene {
             repeat: -1,
         });
 
-        this.cursors = this.input.keyboard!.createCursorKeys();
-        this.player = this.physics.add.sprite(470, 545, 'polina');
-        // this.player.setDisplaySize(40, 40);
-        // this.player.setTint(0xff0000);
-        this.player.setDepth(1);
-        this.player.setCollideWorldBounds(true);
+        // Player and input now handled by PlayerController
+        this.playerController = new PlayerController(this);
 
-        this.energyBar = this.add.graphics();
+        // Energy bar is now a dedicated object
+        this.energyBar = new EnergyBar(this, this.playerController.getEnergy());
+
+        // Falling gifts handled by a spawner
+        this.fallingGiftSpawner = new FallingGiftSpawner(this);
+        this.fallingGiftSpawner.start();
+
+        // Коллизия с игроком
+        this.physics.add.overlap(
+            this.playerController.player,
+            this.fallingGiftSpawner.fallingGifts,
+            this.catchFallingGift,
+            undefined,
+            this,
+        );
+
+        this.score = new Score(this);
     }
 
     update() {
-        this.drawEnergyBar();
-        this.player.setVelocity(0);
+        // Sync energy and render
+        this.energyBar.setEnergy(this.playerController.getEnergy());
+        this.energyBar.draw();
 
-        const isMovingLeft = this.cursors.left?.isDown;
-        const isMovingRight = this.cursors.right?.isDown;
-        const hasEnergy = this.energy > 1;
+        // Draw score
+        this.score.draw();
 
-        if (!this.cursors.shift?.isDown && this.energy < 100) {
-            this.energy = this.energy + 0.05;
-        }
+        // player input/movement
+        this.playerController.update();
 
-        const getSprintVelocity = () => {
-            if (this.cursors.shift?.isDown && hasEnergy) {
-                this.energy = this.energy - 0.15;
-                console.log(this.energy);
-
-                return 1.5;
-            }
-            return 1;
-        };
-
-        const startRunAnimation = () => {
-            if (!this.player.anims.isPlaying) {
-                this.player.play('polina-run');
-            }
-        };
-
-        const idleAnimation = () => {
-            this.player.anims.stop();
-            this.player.setFrame(0);
-        };
-
-        if (isMovingLeft && isMovingRight) {
-            idleAnimation();
-            return;
-        }
-
-        if (isMovingLeft || isMovingRight) {
-            startRunAnimation();
-            const velocity = (isMovingLeft ? -400 : 400) * getSprintVelocity();
-            this.player.setVelocityX(velocity);
-            this.player.setFlipX(isMovingLeft);
-        } else {
-            idleAnimation();
-        }
+        // falling gifts lifecycle
+        this.fallingGiftSpawner.update();
     }
 }
