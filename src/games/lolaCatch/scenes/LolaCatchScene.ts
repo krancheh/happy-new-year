@@ -9,7 +9,7 @@ import Phaser from 'phaser';
 
 export class LolaCatchScene extends Phaser.Scene {
     private targetScore!: number;
-    private level!: number;
+    // private level!: number;
 
     private playerController!: PlayerController;
 
@@ -64,6 +64,7 @@ export class LolaCatchScene extends Phaser.Scene {
             lolaCatchGameEvents.emit('lola-catch-game-over', {
                 scene: this,
                 score: this.score.current,
+                targetScore: this.targetScore,
             });
         }
     };
@@ -74,7 +75,6 @@ export class LolaCatchScene extends Phaser.Scene {
 
     init(data: {level: number}) {
         this.targetScore = data.level * 25;
-        this.level = data.level;
     }
 
     preload() {

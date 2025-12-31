@@ -13,12 +13,26 @@ export const Menu = () => {
     return (
         <div className="menu">
             <h1>Полина, с новым годом!</h1>
-            <Gap size="large" />
-            <h2>За каждую победу ты получаешь случайный подарок</h2>
+            <Gap size="medium" />
+            <p>Играй, чтобы получать подарки!</p>
+            <Gap size="medium" />
+            <div className="alert">
+                <p>
+                    - Обязательно лови
+                    <span className="menu-success"> лолочек🐈</span>, но избегай
+                    <span className="menu-danger"> бомб💣</span>!
+                </p>
+                <p>
+                    - На <span className="menu-success">SHIFT</span> можно
+                    ускоряться
+                </p>
+                <p>- За каждую победу ты получаешь случайный подарок</p>
+            </div>
+            <Gap size="medium" />
             <h3>
                 Собрано подарков: {giftsCatched} из {MAX_NUMBER}🎁
             </h3>
-            <Gap size="medium" />
+            <Gap size="small" />
             <div className="menu-items-list">
                 <MenuItem text="01" success={catchedGifts.includes(1)} />
                 <MenuItem text="02" success={catchedGifts.includes(2)} />

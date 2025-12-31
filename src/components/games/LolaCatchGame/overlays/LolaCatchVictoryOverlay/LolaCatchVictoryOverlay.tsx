@@ -12,7 +12,7 @@ export function LolaCatchVictoryOverlay() {
     const [giftNumber, setGiftNumber] = useState<number | null>(null);
 
     useEffect(() => {
-        lolaCatchGameEvents.on('lola-catch-victory', ({scene, score}) => {
+        lolaCatchGameEvents.on('lola-catch-victory', ({score}) => {
             setScore(score);
             setGiftNumber(getRandomUniqueNumber());
             // setScene(scene);
@@ -34,16 +34,18 @@ export function LolaCatchVictoryOverlay() {
                     src="/src/assets/images/victory_lamb.png"
                     alt="Lola Catch Game Victory"
                 />
-                <h1>{'Поздравляю!'}</h1>
+                <h2>Поздравляю!</h2>
                 <Gap size="medium" />
                 <p>Поймано: {score}</p>
                 <Gap size="small" />
-                <p>
-                    Открывай подарок{' '}
-                    <span className="gift-number">№{giftNumber}</span>
+                <p className="alert">
+                    Скорее открывай подарок{' '}
+                    <span className="tag-success">№ {giftNumber}</span>!
                 </p>
                 <Gap size="medium" />
-                <Link to={'/'}>В меню</Link>
+                <Link className="menu-button" to={'/'}>
+                    В меню
+                </Link>
             </div>
         </div>
     );

@@ -1,10 +1,10 @@
 .menu {
     max-width: 900px;
     padding: 80px 40px;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: #fff;
     border-radius: 10px;
     border: #7ba2ff 4px solid;
-    color: #72c7ff;
+    color: #7ba2ff;
     text-shadow: #96deff 0px 0px 10px;
 }
 
@@ -45,4 +45,12 @@
     border: none;
     border-radius: 5px;
     text-decoration: none;
+}
+
+.menu-danger {
+    color: #ff6f61;
+}
+
+.menu-success {
+    color: #4bb543;
 }

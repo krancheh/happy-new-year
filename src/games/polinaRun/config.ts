@@ -1,6 +1,6 @@
 // import {BootScene} from './scenes/BootScene';
 // import {MenuScene} from './scenes/MenuScene';
-import {PolinaRunScene} from './scenes/PolinaRunScene';
+// import {PolinaRunScene} from './scenes/PolinaRunScene';
 import Phaser from 'phaser';
 
 export const polinaRunConfig: Phaser.Types.Core.GameConfig = {
@@ -17,7 +17,7 @@ export const polinaRunConfig: Phaser.Types.Core.GameConfig = {
             debug: false,
         },
     },
-    scene: [PolinaRunScene],
+    scene: [],
     render: {
         pixelArt: true,
     },
