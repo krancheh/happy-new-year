@@ -1,3 +1,4 @@
+import {ROOT} from '../../../../../consts';
 import {} from '../../../../../games/lolaCatch/Game';
 import {lolaCatchGameEvents} from '../../../../../games/lolaCatch/systems/LolaCatchGameEvents';
 import {Gap} from '../../../../Gap/Gap';
@@ -33,7 +34,7 @@ export function LolaCatchGameOverOverlay() {
             <div className="overlay-inner">
                 <img
                     className="overlay-image"
-                    src="/src/assets/images/game_over_kitty_2.png"
+                    src={`${ROOT}assets/images/game_over_kitty_2.png`}
                     alt="Lola Catch Game Over"
                 />
                 <h2>{'Не получилось..'}</h2>

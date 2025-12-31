@@ -1,4 +1,5 @@
 import './LolaCatchGame.css';
+import {ROOT} from '../../../consts';
 import {destroyGame, startGame} from '../../../games/lolaCatch/Game';
 import {LolaCatchGameOverOverlay} from './overlays/LolaCatchGameOverOverlay';
 import {LolaCatchVictoryOverlay} from './overlays/LolaCatchVictoryOverlay/LolaCatchVictoryOverlay';
@@ -20,7 +21,7 @@ export const LolaCatchGame: React.FC = () => {
         <div className="game">
             <div className="lola-catch-wrapper">
                 <div id="lola-catch-game" />
-                <img className="bg-gif" src="/src/assets/images/bg.gif" />
+                <img className="bg-gif" src={`${ROOT}assets/images/bg.gif`} />
             </div>
             <LolaCatchGameOverOverlay />
             <LolaCatchVictoryOverlay />

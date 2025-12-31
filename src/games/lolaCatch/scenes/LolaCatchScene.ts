@@ -7,6 +7,8 @@ import {Score} from '../ui/Score';
 import {FallingBombSpawner} from './../systems/FallingBombSpawner';
 import Phaser from 'phaser';
 
+const base = import.meta.env.BASE_URL;
+
 export class LolaCatchScene extends Phaser.Scene {
     private targetScore!: number;
     // private level!: number;
@@ -79,26 +81,29 @@ export class LolaCatchScene extends Phaser.Scene {
 
     preload() {
         // Ассеты картинок
-        this.load.image('ground', '/src/assets/images/ground.jpg');
-        this.load.image('gifts-bg', '/src/assets/images/gifts.png');
-        this.load.image('xmas-tree-bg', '/src/assets/images/xmas_tree.png');
-        this.load.spritesheet('polina', '/src/assets/images/polina.png', {
+        this.load.image('ground', `${base}assets/images/ground.jpg`);
+        this.load.image('gifts-bg', `${base}assets/images/gifts.png`);
+        this.load.image('xmas-tree-bg', `${base}assets/images/xmas_tree.png`);
+        this.load.spritesheet('polina', `${base}assets/images/polina.png`, {
             frameWidth: 82,
             frameHeight: 132,
         });
-        this.load.image('heart', '/src/assets/images/heart.png');
+        this.load.image('heart', `${base}assets/images/heart.png`);
         // Load falling gift images
         for (let i = 1; i <= 6; i++) {
             this.load.image(
                 `falling_gift_${i}`,
-                `/src/assets/images/falling_gift_${i}.png`,
+                `${base}assets/images/falling_gift_${i}.png`,
             );
         }
-        this.load.image('falling_bomb', '/src/assets/images/falling_bomb.png');
+        this.load.image(
+            'falling_bomb',
+            `${base}assets/images/falling_bomb.png`,
+        );
 
         // Ассеты звуков
-        this.load.audio('catch_gift', '/src/assets/sounds/catch.wav');
-        this.load.audio('get_damage', '/src/assets/sounds/roblox_oof.mp3');
+        this.load.audio('catch_gift', `${base}assets/sounds/catch.wav`);
+        this.load.audio('get_damage', `${base}assets/sounds/roblox_oof.mp3`);
     }
 
     create() {

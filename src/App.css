@@ -71,7 +71,7 @@ h6 {
 
 @font-face {
     font-family: 'joystix';
-    src: url('./assets/fonts/joystix.otf');
+    src: url('../public/assets/fonts/joystix.otf');
 }
 
 .overlay {

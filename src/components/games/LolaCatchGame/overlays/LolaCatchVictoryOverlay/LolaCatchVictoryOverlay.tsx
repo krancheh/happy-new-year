@@ -1,3 +1,4 @@
+import {ROOT} from '../../../../../consts';
 import {} from '../../../../../games/lolaCatch/Game';
 import {lolaCatchGameEvents} from '../../../../../games/lolaCatch/systems/LolaCatchGameEvents';
 import {getRandomUniqueNumber} from '../../../../../games/utils';
@@ -31,7 +32,7 @@ export function LolaCatchVictoryOverlay() {
             <div className="overlay-inner">
                 <img
                     className="overlay-image"
-                    src="/src/assets/images/victory_lamb.png"
+                    src={`${ROOT}assets/images/victory_lamb.png`}
                     alt="Lola Catch Game Victory"
                 />
                 <h2>Поздравляю!</h2>
