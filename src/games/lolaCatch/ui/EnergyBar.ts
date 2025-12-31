@@ -23,7 +23,7 @@ export class EnergyBar {
 
     draw() {
         const x = 20;
-        const y = 20;
+        const y = 120;
         const width = 200;
         const height = 20;
 

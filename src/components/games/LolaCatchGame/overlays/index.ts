@@ -1,0 +1,1 @@
+export {LolaCatchGameOverOverlay} from './LolaCatchGameOverOverlay';

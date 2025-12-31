@@ -5,7 +5,6 @@ export class FallingGiftSpawner {
     private scene: Phaser.Scene = Phaser.Scene.prototype;
     public fallingGifts: Phaser.Physics.Arcade.Group;
     private spawnTimer!: Phaser.Time.TimerEvent;
-    private fasterSpawnTimer!: Phaser.Time.TimerEvent;
     private fallingGiftsVelocity = 300;
 
     constructor(scene: Phaser.Scene) {
@@ -21,12 +20,17 @@ export class FallingGiftSpawner {
             callbackScope: this,
         });
 
-        this.fasterSpawnTimer = this.scene.time.addEvent({
+        this.scene.time.addEvent({
             delay: 10000,
             loop: false,
             callback: this.speedUpSpawning,
             callbackScope: this,
         });
+    }
+
+    stop() {
+        this.spawnTimer.remove(false);
+        this.fallingGifts.clear(true, true);
     }
 
     private spawnFallingGift() {
@@ -44,7 +48,7 @@ export class FallingGiftSpawner {
 
         fallingGift
             .setActive(true)
-            .setScale(2)
+            .setScale(1.2)
             .setVisible(true)
             .setVelocityY(this.fallingGiftsVelocity)
             .setCollideWorldBounds(false);
@@ -52,15 +56,19 @@ export class FallingGiftSpawner {
 
     private speedUpSpawning() {
         this.spawnTimer.timeScale *= 2;
-        this.fallingGiftsVelocity *= 2;
+        this.fallingGiftsVelocity *= 1.2;
     }
 
-    update() {
+    update(getDamage: () => void) {
         this.fallingGifts.children.each((child) => {
             const gift = child as Phaser.Physics.Arcade.Image;
 
             if (gift.active && gift.y > this.scene.scale.height + 50) {
                 gift.disableBody(true, true);
+
+                if (gift.texture.key === 'falling_gift_3') {
+                    getDamage();
+                }
             }
             return null;
         });

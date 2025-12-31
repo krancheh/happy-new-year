@@ -1,51 +1,108 @@
 import {PlayerController} from '../PlayerController';
 import {FallingGiftSpawner} from '../systems/FallingGiftSpawner';
+import {lolaCatchGameEvents} from '../systems/LolaCatchGameEvents';
 import {EnergyBar} from '../ui/EnergyBar';
+import {Hearts} from '../ui/Hearts';
 import {Score} from '../ui/Score';
+import {FallingBombSpawner} from './../systems/FallingBombSpawner';
 import Phaser from 'phaser';
 
 export class LolaCatchScene extends Phaser.Scene {
+    private targetScore!: number;
+    private level!: number;
+
     private playerController!: PlayerController;
 
     private ground!: Phaser.GameObjects.TileSprite;
     private giftsBg!: Phaser.GameObjects.TileSprite;
     private xmasTreeBg!: Phaser.GameObjects.TileSprite;
 
-    private energyBar!: EnergyBar;
+    private hearts!: Hearts;
     private score!: Score;
+    private energyBar!: EnergyBar;
     private fallingGiftSpawner!: FallingGiftSpawner;
+    private fallingBombSpawner!: FallingBombSpawner;
 
     /** Обработчик поимки подарка. */
     private catchFallingGift: Phaser.Types.Physics.Arcade.ArcadePhysicsCallback =
         (_player, fallingGift) => {
+            this.sound.play('catch_gift');
             const gift = fallingGift as Phaser.Physics.Arcade.Image;
             this.score.add(1);
 
+            if (this.score.current >= this.targetScore) {
+                // this.fallingGiftSpawner.stop();
+                this.fallingBombSpawner.stop();
+                this.physics.pause();
+
+                // Emit victory event
+                lolaCatchGameEvents.emit('lola-catch-victory', {
+                    scene: this,
+                    score: this.score.current,
+                });
+            }
             gift.disableBody(true, true);
         };
+
+    private catchFallingBomb: Phaser.Types.Physics.Arcade.ArcadePhysicsCallback =
+        (_player, fallingBomb) => {
+            const bomb = fallingBomb as Phaser.Physics.Arcade.Image;
+            bomb.disableBody(true, true);
+            this.getDamage();
+        };
+
+    private getDamage = () => {
+        this.hearts.lose(1);
+        this.sound.play('get_damage');
+
+        if (this.hearts.hp <= 0) {
+            this.fallingGiftSpawner.stop();
+            this.fallingBombSpawner.stop();
+            this.physics.pause();
+
+            // Emit game over event
+            lolaCatchGameEvents.emit('lola-catch-game-over', {
+                scene: this,
+                score: this.score.current,
+            });
+        }
+    };
 
     constructor() {
         super('LolaCatch');
     }
 
+    init(data: {level: number}) {
+        this.targetScore = data.level * 25;
+        this.level = data.level;
+    }
+
     preload() {
-        this.load.image('ground', 'src/assets/images/ground.jpg');
-        this.load.image('gifts-bg', 'src/assets/images/gifts.png');
-        this.load.image('xmas-tree-bg', 'src/assets/images/xmas_tree.png');
-        this.load.spritesheet('polina', 'src/assets/images/polina.png', {
+        // Ассеты картинок
+        this.load.image('ground', '/src/assets/images/ground.jpg');
+        this.load.image('gifts-bg', '/src/assets/images/gifts.png');
+        this.load.image('xmas-tree-bg', '/src/assets/images/xmas_tree.png');
+        this.load.spritesheet('polina', '/src/assets/images/polina.png', {
             frameWidth: 82,
             frameHeight: 132,
         });
-        // this.load.image('gifts', 'src/assets/images/gifts.png');
+        this.load.image('heart', '/src/assets/images/heart.png');
+        // Load falling gift images
         for (let i = 1; i <= 6; i++) {
             this.load.image(
                 `falling_gift_${i}`,
-                `src/assets/images/falling_gift_${i}.png`,
+                `/src/assets/images/falling_gift_${i}.png`,
             );
         }
+        this.load.image('falling_bomb', '/src/assets/images/falling_bomb.png');
+
+        // Ассеты звуков
+        this.load.audio('catch_gift', '/src/assets/sounds/catch.wav');
+        this.load.audio('get_damage', '/src/assets/sounds/roblox_oof.mp3');
     }
 
     create() {
+        this.sound.setVolume(0.1);
         const groundHeight = 586;
         const groundScale = 0.25;
 
@@ -98,6 +155,10 @@ export class LolaCatchScene extends Phaser.Scene {
         this.fallingGiftSpawner = new FallingGiftSpawner(this);
         this.fallingGiftSpawner.start();
 
+        // Falling bombs handled by a spawner
+        this.fallingBombSpawner = new FallingBombSpawner(this);
+        this.fallingBombSpawner.start();
+
         // Коллизия с игроком
         this.physics.add.overlap(
             this.playerController.player,
@@ -106,8 +167,22 @@ export class LolaCatchScene extends Phaser.Scene {
             undefined,
             this,
         );
+        this.physics.add.overlap(
+            this.playerController.player,
+            this.fallingBombSpawner.fallingBombs,
+            this.catchFallingBomb,
+            undefined,
+            this,
+        );
 
-        this.score = new Score(this);
+        this.score = new Score(this, this.targetScore);
+
+        // Ensure font is loaded before displaying score
+        document.fonts.load('24px joystix').then(() => {
+            this.score.reset();
+        });
+
+        this.hearts = new Hearts(this, 5);
     }
 
     update() {
@@ -115,13 +190,10 @@ export class LolaCatchScene extends Phaser.Scene {
         this.energyBar.setEnergy(this.playerController.getEnergy());
         this.energyBar.draw();
 
-        // Draw score
-        this.score.draw();
-
         // player input/movement
         this.playerController.update();
 
         // falling gifts lifecycle
-        this.fallingGiftSpawner.update();
+        this.fallingGiftSpawner.update(this.getDamage);
     }
 }

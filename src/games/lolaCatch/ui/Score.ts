@@ -1,38 +1,37 @@
 export class Score {
-    private graphics: Phaser.GameObjects.Graphics;
-    private score = 0;
+    private value = 0;
+    private text: Phaser.GameObjects.Text;
+    private fontSize = 24;
+    private scoreToWin: number;
 
-    constructor(scene: Phaser.Scene) {
-        this.graphics = scene.add.graphics();
-    }
-
-    add(points: number) {
-        this.score += points;
-    }
-
-    getScore() {
-        return this.score;
-    }
-
-    draw() {
-        const x = 20;
-        const y = 50;
-        const fontSize = 24;
-        const text = `Score: ${this.score}`;
-        this.graphics.clear();
-
-        const style = {
-            fontSize: `${fontSize}px`,
+    constructor(scene: Phaser.Scene, scoreToWin: number) {
+        this.scoreToWin = scoreToWin;
+        const style: Phaser.Types.GameObjects.Text.TextStyle = {
+            fontSize: `${this.fontSize}px`,
             color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 2,
+            fontFamily: 'joystix',
         };
-        // this.graphics.fillStyle(0x000000, 0.5);
-        // const textUi = this.graphics.scene.make
-        //     .text({
-        //         x: 0,
-        //         y: 0,
-        //         text: text,
-        //         style: style,
-        //     })
-        this.graphics.scene.add.text(x, y, text, style);
+
+        this.text = scene.add.text(20, 80, 'Тут очки', style);
+    }
+
+    add(points: number = 1) {
+        this.value += points;
+        this.updateText();
+    }
+
+    reset() {
+        this.value = 0;
+        this.updateText();
+    }
+
+    get current() {
+        return this.value;
+    }
+
+    private updateText() {
+        this.text.setText(`Поймано: ${this.value} / ${this.scoreToWin}`);
     }
 }

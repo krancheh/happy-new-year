@@ -5,7 +5,13 @@
 
     color-scheme: light dark;
     color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+    background: #94e1ff;
+    background: linear-gradient(
+        90deg,
+        rgba(148, 225, 255, 1) 0%,
+        rgba(87, 130, 199, 1) 50%,
+        rgba(83, 214, 237, 1) 100%
+    );
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -15,11 +21,11 @@
 
 a {
     font-weight: 500;
-    color: #646cff;
+    color: #ffffff;
     text-decoration: inherit;
 }
 a:hover {
-    color: #535bf2;
+    color: #c2c5ff;
 }
 
 body {
