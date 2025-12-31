@@ -3,7 +3,7 @@ import {LolaCatchGame} from './components/games/LolaCatchGame';
 import {PolinaRunGame} from './components/games/PolinaRunGame/PolinaRunGame';
 import {ShooterGame} from './components/games/ShooterGame';
 import {Menu} from './components/Menu';
-import {BrowserRouter, HashRouter, Route, Routes} from 'react-router-dom';
+import {HashRouter, Route, Routes} from 'react-router-dom';
 
 export const App = () => (
     <div className="app-wrapper">
